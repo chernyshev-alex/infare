@@ -26,7 +26,7 @@ public class JobsTracker extends AbstractActor {
     ActorRef workersRouter = getContext().actorOf(
             FromConfig.getInstance().props(Props.create(WorkerActor.class)),
             "jobsExecutorRouter");
-
+    
     private LinkedList<Path> jobs = new LinkedList<>();
 
     @Override

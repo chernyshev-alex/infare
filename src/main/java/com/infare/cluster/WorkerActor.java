@@ -10,19 +10,12 @@ import java.io.Serializable;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.infare.config.BatchApplication;
-import com.infare.config.BatchConfiguration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -87,13 +80,14 @@ public class WorkerActor extends AbstractActor {
         JobLauncher jobLauncher = ctx.getBean(JobLauncher.class);
         Job batchJob = ctx.getBean("exportToMongoJob", Job.class);
         JobParameters jobParameters = new JobParametersBuilder()
-                .addString("filePath", job.jobSpec)
+                .addString("filePath", job.jobSpec, true)  // create a new batch instance
                 .toJobParameters();
 
         JobExecution jobExecution;
         try {
             jobExecution = jobLauncher.run(batchJob, jobParameters);
             BatchStatus batchStatus = jobExecution.getStatus();
+            // TODO  handle error
         } catch (Exception ex) {
             log.error(ex.getMessage());
         }
